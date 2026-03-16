@@ -1,0 +1,55 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.3.13",
+    "lastTouchedAt": "2026-03-16T13:25:15.602Z"
+  },
+  "env": {
+    "load": ".env"
+  },
+  "wizard": {
+    "lastRunAt": "2026-03-16T13:22:17.796Z",
+    "lastRunVersion": "2026.3.13",
+    "lastRunCommand": "doctor",
+    "lastRunMode": "local"
+  },
+  "auth": {},
+  "models": {},
+  "agents": {
+    "defaults": {
+      "model": "openai/seed-2-0-lite-free",
+      "compaction": {
+        "mode": "safeguard"
+      }
+    }
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "pairing",
+      "groupPolicy": "open",
+      "streaming": "partial"
+    }
+  },
+  "gateway": {
+    "port": 3100,
+    "mode": "local",
+    "auth": {
+      "mode": "token",
+      "token": "f711e6f7a42db48cdf5376ca1277514490bd79ab0075c714"
+    }
+  },
+  "memory": {},
+  "skills": {
+    "load": {
+      "extraDirs": [
+        "./skills"
+      ]
+    }
+  }
+}
