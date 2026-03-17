@@ -25,3 +25,14 @@ interrupt_on_new_message = false
 
 [skills]
 prompt_injection_mode = "compact"
+
+[browser]
+enabled = true
+allowed_domains = ["*"]
+backend = "auto"
+
+[http_request]
+enabled = true
+allowed_domains = ["*"]
+max_response_size = 1000000
+timeout_secs = 30
