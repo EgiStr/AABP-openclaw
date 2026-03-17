@@ -1,6 +1,7 @@
 default_provider = "openai"
 default_model = "gpt-5.3-codex"
 default_temperature = 0.2
+provider_timeout_secs = 30
 
 [agent]
 max_tool_iterations = 3

@@ -1,25 +1,21 @@
-# MEMORY — Persistent Context
+# MEMORY — Lean Snapshot
 
-## Active Snapshot (Keep Short)
-- Last updated: 2026-03-17
-- Rule: store only core summaries here; move long details to daily archive logs.
+Rules:
+- Keep this file short (max 12 bullets total).
+- Store only durable preferences and active priorities.
+- Move long history to archive pointer.
 
-## Current Focus
-<!-- Current active topics, max 3-5 bullets -->
+Last updated: 2026-03-18
 
-## User Preferences Observed
-- Prefers Bahasa Indonesia with English technical terms
-- Likes concrete, solution-focused content
-- Portfolio: eggisatria.dev
+Active focus:
+<!-- max 3 bullets -->
 
-## Projects Discussed (Summary Only)
-<!-- Project name + 1-2 lines of context per project -->
+Durable preferences:
+- Bahasa Indonesia + English technical terms.
+- Concise, solution-first output.
 
-## Draft Feedback Patterns
-<!-- Agent will learn and record patterns here -->
+Active projects:
+<!-- max 3 bullets -->
 
-## Technical Context
-<!-- Important technical decisions in short bullet format -->
-
-## Archive Pointers
-<!-- Example: docs/memory-log-2026-03-17.md#session-2 -->
+Archive pointers:
+<!-- docs/memory-log-YYYY-MM-DD.md#session-x -->
