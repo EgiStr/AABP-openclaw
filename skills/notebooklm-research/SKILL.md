@@ -8,9 +8,16 @@ description: "Autonomous research skill using NotebookLM MCP to ingest technical
 ## When to Use
 Invoke this skill whenever the user:
 - Provides a **GitHub repo URL**, **technical article**, or **long-form document**
-- Requests deep research: "baca repo ini", "research this", "analisis dokumen ini"
-- Asks for **visual content**: "buatkan slide", "buat infografis", "buat thumbnail"
+- Requests deep research: "review this repo", "research this", "analyze this document"
+- Asks for **visual content**: "create slides", "create an infographic", "create a thumbnail"
 - Needs **supporting materials** for a LinkedIn post (slide carousel, infographic summary)
+
+## Token Efficiency Rules
+- Start with **quick triage**: if source is short/simple, analyze directly without NotebookLM.
+- Keep user updates concise (1 short status line), not operational narration.
+- Batch source ingestion when multiple URLs are provided in one request round.
+- Poll `research_status` / `studio_status` only as needed (avoid overly frequent polling).
+- Import only insights needed for current output; avoid dumping full research into active context.
 
 ## Prerequisites
 - **NotebookLM MCP server** installed and authenticated:
@@ -25,7 +32,7 @@ Invoke this skill whenever the user:
 ## Part 1: Research Workflow
 
 ### Step 1: Acknowledge the User
-> "Baik, saya sedang membaca [source description] via NotebookLM... ⏳"
+> "Understood, I am reviewing [source description] via NotebookLM... ⏳"
 
 ### Step 2: Create a Research Notebook
 ```
@@ -40,6 +47,8 @@ For each URL/source provided by the user:
 Tool: notebook_add_url
 Args: { "notebook_id": "<id>", "url": "<source_url>" }
 ```
+
+If there are multiple independent URLs, run ingestion in batch/parallel within one execution round.
 
 **Supported source types:**
 - GitHub repository URLs (README + linked docs)
@@ -206,11 +215,12 @@ For LinkedIn posts that need an eye-catching thumbnail:
 If NotebookLM MCP is unavailable, times out, or returns an error:
 1. **Research fallback**: Analyze directly using LLM context (for documents <4000 tokens)
 2. **Visual fallback**: Inform the user:
-   > "NotebookLM studio tidak tersedia saat ini. Anda bisa membuat visual secara manual menggunakan Canva atau Gamma.app, dan saya bisa menyiapkan konten teksnya."
+  > "NotebookLM Studio is currently unavailable. You can create visuals manually in Canva or Gamma.app, and I can prepare the supporting text content."
 
 ## Context Window Management
 - **Use NotebookLM for**: Long repos (>4000 tokens), multiple sources, deep analysis
 - **Analyze directly for**: Short READMEs, single-page articles, small code snippets
+- **Concise-first delivery**: Provide core summary first; provide detailed expansion only on request.
 
 ## Cleanup
 After all artifacts are generated and the user is satisfied:

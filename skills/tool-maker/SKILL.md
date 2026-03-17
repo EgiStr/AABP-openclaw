@@ -5,46 +5,53 @@ description: "Self-synthesizing skill framework. Detects capability gaps, genera
 
 # Tool-Maker Skill (EPIC 5)
 
-Skill ini dipanggil saat ABA menemukan **skill gap** (kapabilitas belum tersedia), lalu:
-1. Membuat payload `trigger_tool_maker_skill`
-2. Menghasilkan skill Python baru secara dinamis
-3. Menjalankan verifikasi di Docker sandbox
-4. Melakukan auto-fix maksimal 3 iterasi jika muncul traceback
-5. Mengirim notifikasi HITL ke Telegram
-6. Deploy + hot-reload setelah approval
+This skill is invoked when ABA detects a **skill gap** (missing capability), then:
+1. Builds a `trigger_tool_maker_skill` payload
+2. Generates a new Python skill dynamically
+3. Runs verification in a Docker sandbox
+4. Applies auto-fix up to 3 iterations when tracebacks occur
+5. Sends HITL notification to Telegram
+6. Deploys + hot-reloads after approval
+
+## Token Efficiency Rules
+- Use minimal payloads: send only critical inputs (`tool_name`, `description`, `required_inputs`, `expected_output`).
+- Summarize tracebacks before returning to the generator (avoid sending full long logs).
+- For multiple independent requests, process generate/notify in batched rounds.
+- Keep user-facing responses concise-first; show full code only when requested (`View Code`).
 
 ## Story 5.1 — Autonomous Skill Gap Detection
 
-Gunakan script:
+Use the script:
 
 ```bash
 python skills/tool-maker/scripts/trigger_tool_maker_skill.py \
   --instruction "ambil tren lowongan tech stack terbaru"
 ```
 
-Jika terdeteksi gap, output JSON berisi:
+If a gap is detected, JSON output includes:
 - `trigger`: `trigger_tool_maker_skill`
 - `tool_name`, `description`, `required_inputs`, `expected_output`
 - `requires_external_api`, `api_key_hints`
 
 ## Story 5.2 — Sandboxed Code Generation & Execution
 
-Generate + test sandbox:
+Generate + test in sandbox:
 
 ```bash
 python skills/tool-maker/scripts/tool_maker.py generate \
   --payload-file tmp_payload.json
 ```
 
-Perilaku:
-- Kode wajib membentuk class turunan `BaseSkill`
-- Validasi struktur class menggunakan AST
-- Uji syntax + smoke test di Docker (`python:3.11-slim`)
-- Jika traceback, auto-fix hingga 3 percobaan
+Behavior:
+- Code must define a class inheriting from `BaseSkill`
+- Class structure is validated with AST
+- Syntax + smoke tests run in Docker (`python:3.11-slim`)
+- On traceback, auto-fix retries up to 3 attempts
+- Keep generation output length constrained for token efficiency
 
 ## Story 5.3 — HITL Registration & Deployment
 
-Kirim approval request:
+Send approval request:
 
 ```bash
 python skills/tool-maker/scripts/tool_maker.py notify \
@@ -52,12 +59,12 @@ python skills/tool-maker/scripts/tool_maker.py notify \
   --chat-id <telegram_chat_id>
 ```
 
-Tombol Telegram yang dikirim:
+Telegram action buttons sent:
 - `[Approve & Deploy]`
 - `[View Code]`
 - `[Reject]`
 
-Handle aksi approval:
+Handle approval action:
 
 ```bash
 python skills/tool-maker/scripts/tool_maker.py handle-action \
@@ -65,7 +72,7 @@ python skills/tool-maker/scripts/tool_maker.py handle-action \
   --action approve
 ```
 
-Saat `approve`:
-- Skill dipindahkan ke `/skills/<tool_name>/scripts/`
-- `SKILL.md` otomatis dibuat
-- Hot-reload dipicu dengan command `zeroclaw skills reload` (fallback `zeroclaw daemon reload`)
+On `approve`:
+- Skill is moved to `/skills/<tool_name>/scripts/`
+- `SKILL.md` is generated automatically
+- Hot-reload is triggered via `zeroclaw skills reload` (fallback: `zeroclaw daemon reload`)

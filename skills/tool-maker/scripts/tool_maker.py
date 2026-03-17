@@ -84,21 +84,35 @@ def _build_fallback_code(payload: Dict[str, Any], traceback_text: str = "") -> s
     ).strip() + "\n"
 
 
+def _trim_text(value: str, limit: int) -> str:
+    text = (value or "").strip()
+    if len(text) <= limit:
+        return text
+    return text[:limit].rstrip() + " ...[trimmed]"
+
+
 def _generate_with_llm(payload: Dict[str, Any], traceback_text: str = "") -> str:
     api_key = os.getenv("OPENROUTER_API_KEY", "").strip()
     model = os.getenv("TOOL_MAKER_MODEL", "openai/gpt-4.1-mini")
     if not api_key:
         return _build_fallback_code(payload, traceback_text)
 
+    max_tokens = int(os.getenv("TOOL_MAKER_MAX_TOKENS", "900"))
     system_prompt = (
-        "You generate a single Python file implementing a skill class that inherits BaseSkill. "
-        "Output only code, no markdown. Must include: class GeneratedSkill(BaseSkill), run(payload), healthcheck(). "
-        "Import pattern must be: try zeroclaw BaseSkill, then fallback to base_skill_contract BaseSkill."
+        "Generate one concise Python file only (no markdown). "
+        "Required: class GeneratedSkill(BaseSkill), run(payload), healthcheck(). "
+        "Use import fallback: try zeroclaw BaseSkill, except -> base_skill_contract BaseSkill."
     )
+    compact_payload = {
+        "tool_name": payload.get("tool_name", "generated-skill"),
+        "description": _trim_text(str(payload.get("description", "Auto generated skill")), 220),
+        "required_inputs": payload.get("required_inputs", ["query"]),
+        "expected_output": _trim_text(str(payload.get("expected_output", "JSON object")), 260),
+    }
     user_prompt = {
         "task": "Generate skill code",
-        "payload": payload,
-        "previous_traceback": traceback_text,
+        "payload": compact_payload,
+        "previous_traceback": _trim_text(traceback_text, 800),
         "constraints": [
             "Return JSON-serializable dict from run",
             "Do not read local files",
@@ -120,6 +134,7 @@ def _generate_with_llm(payload: Dict[str, Any], traceback_text: str = "") -> str
                     {"role": "user", "content": json.dumps(user_prompt, ensure_ascii=False)},
                 ],
                 "temperature": 0.2,
+                "max_tokens": max_tokens,
             },
             timeout=90,
         )

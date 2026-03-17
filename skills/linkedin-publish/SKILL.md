@@ -5,15 +5,21 @@ description: "Guardrailed LinkedIn publishing skill. Posts approved content to L
 
 # LinkedIn Publish Skill
 
+## Token Efficiency Rules
+- Do not repeat full drafts during approval validation; check only the selected option.
+- Keep status replies short and outcome-first (success/failure + next action).
+- Avoid routine operational narration unless needed to explain an error.
+- Keep active publishing context minimal (option number + final text + hashtags).
+
 ## ⚠️ CRITICAL GUARDRAIL ⚠️
 **NEVER execute any publishing action unless the user has sent the EXACT phrase:**
 - `Approve Option 1`
 - `Approve Option 2`
 - `Approve Option 3`
 
-If the user says anything else that implies they want to publish (e.g., "ok", "kirim", "lgtm", "publish it"),
+If the user says anything else that implies they want to publish (e.g., "ok", "send it", "lgtm", "publish it"),
 reply with:
-> "Untuk konfirmasi publikasi, mohon balas dengan tepat: **Approve Option X** (X = 1, 2, atau 3)"
+> "To confirm publication, please reply exactly: **Approve Option X** (X = 1, 2, or 3)"
 
 ## Prerequisites
 1. LinkedIn Developer App with **"Share on LinkedIn"** product enabled
@@ -59,9 +65,11 @@ python skills/linkedin-publish/scripts/linkedin_post.py \
 ### Step 4: Report Result
 Parse the script's stdout:
 - **On success (exit code 0)**: Report the post URL to the user
-  > "Post berhasil dipublikasikan! 🎉 [link]"
+  > "Post published successfully! 🎉 [link]"
 - **On failure (exit code 1)**: Report the error
-  > "Gagal mempublikasikan: [error]. Silakan cek token LinkedIn."
+  > "Failed to publish: [error]. Please verify the LinkedIn token."
+
+Use concise reporting format; provide deeper technical details only on request.
 
 ## Dry-Run Mode
 For testing without actually posting:

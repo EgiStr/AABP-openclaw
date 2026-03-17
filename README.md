@@ -16,13 +16,14 @@ graph LR
 
 ## ✨ Features
 
-- **Intent-Driven** — Send casual messages in Bahasa Indonesia; the agent understands what you want
+- **Intent-Driven** — Send casual, unstructured messages; the agent infers intent without rigid templates
 - **Deep Research** — Autonomously ingests GitHub repos and docs via NotebookLM MCP
 - **3-Option Drafting** — Always presents Deep Dive 🔬, Storytelling 📖, and Punchy ⚡ variants
+- **Token-Efficient by Default** — Concise-first replies, on-demand memory loading, and batched tool operations
 - **Guardrailed Publishing** — Hard-coded safety: requires exact "Approve Option X" before posting
 - **Self-Synthesizing Tool-Maker** — Detects missing capabilities, generates new skills in sandbox, and requests HITL approval before deployment
 - **Persistent Memory** — Remembers past projects and your content preferences across sessions
-- **Bilingual** — Bahasa Indonesia with English technical terms (best of both worlds)
+- **Operationally Clear** — Documentation and governance are maintained in enterprise-grade English
 
 ## 📋 Prerequisites
 
@@ -71,7 +72,7 @@ copy .env.example .env
 
 # Edit .env and fill in your values:
 # - TELEGRAM_BOT_TOKEN
-# - OPENROUTER_API_KEY (or ZEROCLAW_API_KEY for custom endpoint)
+# - OPENAI_API_KEY
 # - LINKEDIN_CLIENT_ID
 # - LINKEDIN_CLIENT_SECRET
 ```
@@ -110,17 +111,17 @@ Your bot should come online in Telegram. Send it a message to test!
 
 ### Research + Draft
 ```
-You: "Baca repo WhaleWatcher ini https://github.com/user/whalewatcher 
-      dan buatin 3 opsi post LinkedIn"
+You: "Review this WhaleWatcher repo https://github.com/user/whalewatcher
+  and generate 3 LinkedIn post options"
 
-Agent: "Baik, saya sedang membaca repositori tersebut via NotebookLM... ⏳"
+Agent: "Understood. I am reviewing the repository via NotebookLM... ⏳"
        [researches autonomously]
        [presents 3 draft options]
 ```
 
 ### Revise a Draft
 ```
-You: "Revisi opsi 2, buat lebih santai dan tambah mention soal real-time pipeline"
+You: "Revise Option 2, make it more conversational, and add a real-time pipeline mention"
 
 Agent: [presents revised Option 2 only]
 ```
@@ -129,7 +130,7 @@ Agent: [presents revised Option 2 only]
 ```
 You: "Approve Option 2"
 
-Agent: "Post berhasil dipublikasikan! 🎉 https://linkedin.com/feed/update/..."
+Agent: "Post published successfully! 🎉 https://linkedin.com/feed/update/..."
 ```
 
 ### Auto Tool-Maker (Skill Gap)
@@ -210,6 +211,16 @@ AABP-agent/
 | Agent not responding | Run `zeroclaw status` and `zeroclaw channel doctor` |
 | Config changes not applied | Restart runtime with `zeroclaw daemon` |
 | High token costs | Use smaller model in `%USERPROFILE%\.zeroclaw\config.toml` and set `[skills].prompt_injection_mode = "compact"` |
+
+## 💸 Token Efficiency Defaults
+
+- `AGENTS.md` now enforces **concise-first mode** for normal replies (1-2 paragraphs).
+- `MEMORY.md` is treated as an **active snapshot**, while long history should be archived to `docs/memory-log-YYYY-MM-DD.md`.
+- `zeroclaw.config.toml.example` is tuned for lower overhead:
+  - `max_history_messages = 20`
+  - `max_tool_iterations = 8`
+  - `default_temperature = 0.4`
+- Tool-Maker LLM generation now trims oversized payload fields and uses explicit `max_tokens`.
 
 ##  License
 

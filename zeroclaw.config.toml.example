@@ -1,10 +1,10 @@
-default_provider = "openrouter"
-default_model = "openai/seed-2-0-lite-free"
-default_temperature = 0.7
+default_provider = "openai"
+default_model = "gpt-5.3-codex"
+default_temperature = 0.4
 
 [agent]
-max_tool_iterations = 12
-max_history_messages = 50
+max_tool_iterations = 8
+max_history_messages = 20
 
 [gateway]
 host = "127.0.0.1"
