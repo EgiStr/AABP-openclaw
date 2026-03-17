@@ -1,7 +1,7 @@
 [project]
 name = "aabp-agent"
 version = "1.0.0"
-description = "Autonomous Branding Agent — LinkedIn personal branding via OpenClaw + Telegram"
+description = "Autonomous Branding Agent — LinkedIn personal branding via ZeroClaw + Telegram"
 requires-python = ">=3.10"
 dependencies = [
     "requests>=2.31.0",

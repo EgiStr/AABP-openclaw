@@ -18,7 +18,7 @@ Invoke this skill whenever the user:
   uv tool install notebooklm-mcp-server
   notebooklm-mcp-auth
   ```
-- The MCP server must be connected in `openclaw.json` (already configured).
+- The MCP server must be connected in `%USERPROFILE%/.zeroclaw/config.toml` (or your active ZeroClaw workspace config).
 
 ---
 

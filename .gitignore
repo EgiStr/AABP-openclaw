@@ -3,8 +3,8 @@
 *.pem
 *.key
 
-# OpenClaw runtime
-.openclaw/
+# ZeroClaw runtime
+.zeroclaw/
 memory/
 
 # Python

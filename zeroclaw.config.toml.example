@@ -1,0 +1,27 @@
+default_provider = "openrouter"
+default_model = "openai/seed-2-0-lite-free"
+default_temperature = 0.7
+
+[agent]
+max_tool_iterations = 12
+max_history_messages = 50
+
+[gateway]
+host = "127.0.0.1"
+port = 42617
+require_pairing = true
+allow_public_bind = false
+
+[channels_config]
+cli = true
+message_timeout_secs = 120
+
+[channels_config.telegram]
+bot_token = "replace_with_telegram_bot_token"
+allowed_users = ["*"]
+stream_mode = "partial"
+mention_only = false
+interrupt_on_new_message = false
+
+[skills]
+prompt_injection_mode = "compact"

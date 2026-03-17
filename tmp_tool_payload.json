@@ -1,0 +1,8 @@
+﻿{
+  "trigger": "trigger_tool_maker_skill",
+  "tool_name": "zc-test-job-trends",
+  "description": "ZeroClaw compatibility retest",
+  "required_inputs": ["keywords", "location", "date_range"],
+  "expected_output": "JSON trend summary",
+  "api_key_hints": ["RAPIDAPI_KEY"]
+}

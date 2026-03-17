@@ -1,10 +1,10 @@
 # 🤖 Autonomous Branding Agent (ABA)
 
-> An AI-powered personal branding assistant built on [OpenClaw](https://openclaw.ai) that lives in Telegram, researches your technical projects via NotebookLM, and publishes polished LinkedIn posts — all with human-in-the-loop safety.
+> An AI-powered personal branding assistant built on [ZeroClaw](https://github.com/zeroclaw-labs/zeroclaw) that lives in Telegram, researches your technical projects via NotebookLM, and publishes polished LinkedIn posts — all with human-in-the-loop safety.
 
 ```mermaid
 graph LR
-    U[👤 You on Telegram] -->|casual message| OC[🧠 OpenClaw Agent]
+    U[👤 You on Telegram] -->|casual message| OC[🧠 ZeroClaw Agent]
     OC -->|research| NLM[📚 NotebookLM MCP]
     NLM -->|insights| OC
     OC -->|3 draft options| U
@@ -20,6 +20,7 @@ graph LR
 - **Deep Research** — Autonomously ingests GitHub repos and docs via NotebookLM MCP
 - **3-Option Drafting** — Always presents Deep Dive 🔬, Storytelling 📖, and Punchy ⚡ variants
 - **Guardrailed Publishing** — Hard-coded safety: requires exact "Approve Option X" before posting
+- **Self-Synthesizing Tool-Maker** — Detects missing capabilities, generates new skills in sandbox, and requests HITL approval before deployment
 - **Persistent Memory** — Remembers past projects and your content preferences across sessions
 - **Bilingual** — Bahasa Indonesia with English technical terms (best of both worlds)
 
@@ -27,19 +28,23 @@ graph LR
 
 | Requirement | Version | Purpose |
 |---|---|---|
-| [Node.js](https://nodejs.org) | ≥ 18 | Running OpenClaw |
+| [Rust](https://www.rust-lang.org/tools/install) | Stable | Running ZeroClaw |
 | [Python](https://python.org) | ≥ 3.10 | LinkedIn scripts & NotebookLM MCP |
 | [uv](https://docs.astral.sh/uv/) | Latest | Python package manager |
-| [OpenClaw](https://openclaw.ai) | Latest | Agent framework |
+| [ZeroClaw](https://github.com/zeroclaw-labs/zeroclaw) | Latest | Agent framework |
 | Telegram Account | — | Bot channel |
 | LinkedIn Developer App | — | Publishing API |
 | Google Account | — | NotebookLM access |
 
 ## 🚀 Setup Guide
 
-### Step 1: Install OpenClaw
+### Step 1: Install ZeroClaw
 ```bash
-npm install -g openclaw
+# Option A (recommended): download prebuilt binary from
+# https://github.com/zeroclaw-labs/zeroclaw/releases/latest
+
+# Option B (build from source)
+cargo install --git https://github.com/zeroclaw-labs/zeroclaw --locked zeroclaw
 ```
 
 ### Step 2: Clone / Navigate to This Project
@@ -66,7 +71,7 @@ copy .env.example .env
 
 # Edit .env and fill in your values:
 # - TELEGRAM_BOT_TOKEN
-# - OPENAI_API_KEY
+# - OPENROUTER_API_KEY (or ZEROCLAW_API_KEY for custom endpoint)
 # - LINKEDIN_CLIENT_ID
 # - LINKEDIN_CLIENT_SECRET
 ```
@@ -89,9 +94,15 @@ uv run skills\linkedin-publish\scripts\linkedin_oauth.py
 ```
 This opens your browser for LinkedIn authorization and saves the access token to `.env`.
 
-### Step 9: Start the Agent
+### Step 9: Create ZeroClaw Config
 ```bash
-openclaw gateway run
+copy zeroclaw.config.toml.example %USERPROFILE%\.zeroclaw\config.toml
+```
+Then edit `%USERPROFILE%\.zeroclaw\config.toml` and set `bot_token`.
+
+### Step 10: Start the Agent
+```bash
+zeroclaw daemon
 ```
 Your bot should come online in Telegram. Send it a message to test!
 
@@ -121,6 +132,22 @@ You: "Approve Option 2"
 Agent: "Post berhasil dipublikasikan! 🎉 https://linkedin.com/feed/update/..."
 ```
 
+### Auto Tool-Maker (Skill Gap)
+```bash
+# 1) Detect skill gap from user instruction
+python skills\tool-maker\scripts\trigger_tool_maker_skill.py \
+  --instruction "ambil data saham AAPL 30 hari terakhir"
+
+# 2) Generate & sandbox test skill (max 3 auto-fix iterations)
+python skills\tool-maker\scripts\tool_maker.py generate \
+  --payload-file tmp_payload.json
+
+# 3) Send HITL approval to Telegram
+python skills\tool-maker\scripts\tool_maker.py notify \
+  --bundle-file skills\tool-maker\staging\<request_id>\bundle.json \
+  --chat-id <telegram_chat_id>
+```
+
 ### Test Publishing (Dry Run)
 ```bash
 uv run skills\linkedin-publish\scripts\linkedin_post.py \
@@ -133,7 +160,7 @@ uv run skills\linkedin-publish\scripts\linkedin_post.py \
 
 ```
 AABP-agent/
-├── openclaw.json          # OpenClaw config (Telegram, OpenAI, MCP)
+├── zeroclaw.config.toml.example  # ZeroClaw config template
 ├── pyproject.toml         # Python deps managed by uv
 ├── .env                   # API keys and secrets (git-ignored)
 ├── .env.example           # Template with documentation
@@ -147,6 +174,13 @@ AABP-agent/
 ├── skills/
 │   ├── notebooklm-research/
 │   │   └── SKILL.md       # NotebookLM research workflow
+│   │
+│   ├── tool-maker/
+│   │   ├── SKILL.md        # Dynamic skill generation (EPIC 5)
+│   │   └── scripts/
+│   │       ├── trigger_tool_maker_skill.py
+│   │       ├── tool_maker.py
+│   │       └── base_skill_contract.py
 │   │
 │   └── linkedin-publish/
 │       ├── SKILL.md        # Publishing skill + guardrails
@@ -173,9 +207,10 @@ AABP-agent/
 | NotebookLM tools not appearing | Run `notebooklm-mcp-auth` to refresh auth |
 | LinkedIn 401 error | Re-run `linkedin_oauth.py` to refresh token |
 | LinkedIn 403 error | Enable "Share on LinkedIn" in developer portal |
-| Agent enters infinite loop | Check OpenClaw logs; `maxToolCalls` limits this |
-| High token costs | Switch `gpt-4o-mini` as primary model in `openclaw.json` |
+| Agent not responding | Run `zeroclaw status` and `zeroclaw channel doctor` |
+| Config changes not applied | Restart runtime with `zeroclaw daemon` |
+| High token costs | Use smaller model in `%USERPROFILE%\.zeroclaw\config.toml` and set `[skills].prompt_injection_mode = "compact"` |
 
-## 📄 License
+##  License
 
 MIT
