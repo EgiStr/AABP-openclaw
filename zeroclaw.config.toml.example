@@ -6,6 +6,12 @@ default_temperature = 0.4
 max_tool_iterations = 8
 max_history_messages = 20
 
+[autonomy]
+level = "supervised"
+workspace_only = true
+auto_approve = ["file_read", "file_write", "file_search", "memory_recall", "memory_store", "http_request", "browser_open", "browser", "browser_screenshot", "spreadsheet_read", "spreadsheet_write", "telegram_send", "screenshot_send", "shell_exec"]
+always_ask = ["account_auth", "account_login", "credential_write", "payment", "bank_transfer", "wallet_transfer", "personal_data_read", "personal_data_write", "personal_data_send"]
+
 [gateway]
 host = "127.0.0.1"
 port = 42617
